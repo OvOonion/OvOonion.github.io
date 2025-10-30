@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>万圣节快乐</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .btn {
+            background-color: #ff6f61;
+            color: white;
+            font-size: 30px;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 50px;
+        }
+
+        .btn:hover {
+            background-color: #ff4a3b;
+        }
+
+        .message {
+            margin-top: 50px;
+            font-size: 50px;
+            font-weight: bold;
+            line-height: 1.2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .line {
+            width: 400px;
+            text-align: center;
+        }
+
+        /* 弹幕样式（像信息气泡） */
+        .barrage {
+            position: absolute;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 15px;
+            color: white;
+            font-size: 20px;
+            white-space: normal;
+            word-break: break-word;
+            opacity: 0;
+            max-width: 70%;
+            transform: scale(0.5);  /* 默认缩小 */
+        }
+
+        @keyframes appearScale {
+            0% { opacity: 0; transform: scale(0.5); }
+            30% { opacity: 1; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+
+        /* 手机端优化 */
+        @media (max-width: 768px) {
+            .btn { font-size: 6vw; padding: 3vw 5vw; border-radius: 2vw; }
+            .message { font-size: 8vw; }
+            .line { width: 80vw; }
+            .barrage { font-size: 6vw; padding: 3vw 4vw; border-radius: 2vw; max-width: 80vw; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn" onclick="startBarrage()">点击我</button>
+<div class="message" id="messageBox"></div>
+<div id="barrageContainer"></div>
+
+<script>
+const barrageMessages = [
+    "多注意身体！","好好照顾自己！","你很好！","好好休息！",
+    "开心每一天！","愿你每天都开开心心的","永远支持你！",
+    "做自己就好！","你是一位很真诚的女生","认识你我看很开心","谢谢你",
+    "你的感受最重要！","敏感的人能感受到别人忽略的细节，其实这是一种天赋",
+    "世界粗糙，但你能察觉其中的细微，这不是错！","唱歌好听","你已经做的很好了",
+    "辛苦了！"
+];
+
+const colors = ["#ff6f61","#ffb86c","#6aff6a","#6ac7ff","#d96aff","#ff6acc","#ffde6a"];
+
+let barrageInterval;
+let barrageEndTime;
+
+function startBarrage() {
+    const messageBox = document.getElementById("messageBox");
+    messageBox.innerHTML = '<div class="line">米线大王</div><div class="line" style="margin-left: 30px;">万圣节快乐！</div>';
+
+    barrageEndTime = Date.now() + 20000;
+    barrageInterval = setInterval(createBarrage, 1000);
+}
+
+function createBarrage() {
+    if (Date.now() > barrageEndTime) {
+        clearInterval(barrageInterval);
+        return;
+    }
+
+    for (let i = 0; i < 5; i++) {
+        const message = barrageMessages[Math.floor(Math.random() * barrageMessages.length)];
+        const barrage = document.createElement("div");
+        barrage.classList.add("barrage");
+        barrage.innerText = message;
+
+        // 随机气泡颜色
+        barrage.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        const safeTop = document.getElementById("messageBox").offsetHeight + 20;
+        const randomTop = safeTop + Math.random() * (window.innerHeight - safeTop - 50);
+        const randomLeft = Math.random() * (window.innerWidth - 260); 
+        const randomDelay = Math.random() * 2;
+
+        barrage.style.top = randomTop + "px";
+        barrage.style.left = randomLeft + "px";
+
+        // 添加出现动画
+        barrage.style.animation = `appearScale 0.8s forwards, fadeOut 5s 15s forwards`;
+        barrage.style.animationDelay = `${randomDelay}s`;
+
+        document.getElementById("barrageContainer").appendChild(barrage);
+
+        setTimeout(() => { barrage.remove(); }, 15000 + randomDelay*1000);
+    }
+}
+</script>
+
+</body>
+</html>
