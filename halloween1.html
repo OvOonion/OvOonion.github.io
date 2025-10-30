@@ -1,152 +1,151 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>万圣节快乐</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #222;
-            color: white;
-            text-align: center;
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>万圣节快乐</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
-        .btn {
-            background-color: #ff6f61;
-            color: white;
-            font-size: 30px;
-            padding: 20px 40px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 50px;
-        }
+.btn {
+    background-color: #ff6f61;
+    color: white;
+    font-size: 30px;
+    padding: 20px 40px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 50px;
+}
 
-        .btn:hover {
-            background-color: #ff4a3b;
-        }
+.btn:hover {
+    background-color: #ff4a3b;
+}
 
-        .message {
-            margin-top: 50px;
-            font-size: 50px;
-            font-weight: bold;
-            line-height: 1.2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.message {
+    margin-top: 50px;
+    font-size: 50px;
+    font-weight: bold;
+    line-height: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .line {
-            width: 400px;
-            text-align: center;
-        }
+.line {
+    width: 400px;
+    text-align: center;
+}
 
-        /* 弹幕样式（像信息气泡） */
-        .barrage {
-            position: absolute;
-            display: inline-block;
-            padding: 8px 12px;
-            border-radius: 15px;
-            color: white;
-            font-size: 20px;
-            white-space: normal;
-            word-break: break-word;
-            opacity: 0;
-            max-width: 70%;
-            transform: scale(0.5);  /* 默认缩小 */
-        }
+/* 弹窗消息气泡样式 */
+.bubble {
+    position: absolute;
+    background-color: #ff6f61;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 15px;
+    font-size: 20px;
+    max-width: 300px;
+    word-break: break-word;
+    opacity: 0;
+    transform: scale(0.5);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: popup 0.5s forwards;
+}
 
-        @keyframes appearScale {
-            0% { opacity: 0; transform: scale(0.5); }
-            30% { opacity: 1; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+@keyframes popup {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+}
 
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            100% { opacity: 0; transform: scale(0.5); }
-        }
+@keyframes fadeout {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5); }
+}
 
-                /* 手机端优化 */
-        @media (max-width: 768px) {
-            .btn { font-size: 7vw; padding: 4vw 6vw; border-radius: 2.5vw; }
-            .message { font-size: 10vw; }       /* 顶部文字更大 */
-            .line { width: 90vw; }
-            .barrage { font-size: 8vw; padding: 4vw 5vw; border-radius: 3vw; max-width: 90vw; } /* 弹幕字体更大 */
-        }
-
-    </style>
+/* 手机端优化 */
+@media (max-width: 768px) {
+    .message { font-size: 10vw; }
+    .line { width: 90vw; }
+    .bubble {
+        font-size: 6vw;
+        max-width: 80vw;
+        padding: 4vw 5vw;
+        border-radius: 3vw;
+    }
+}
+</style>
 </head>
 <body>
 
-<button class="btn" onclick="startBarrage()">点击我</button>
+<button class="btn" onclick="startBubbles()">点击我</button>
 <div class="message" id="messageBox"></div>
-<div id="barrageContainer"></div>
 
 <script>
-const barrageMessages = [
+const messages = [
     "多注意身体！","好好照顾自己！","你很好！","好好休息！",
     "开心每一天！","愿你每天都开开心心的","永远支持你！",
     "做自己就好！","你是一位很真诚的女生","认识你我看很开心","谢谢你",
     "你的感受最重要！","敏感的人能感受到别人忽略的细节，其实这是一种天赋",
     "世界粗糙，但你能察觉其中的细微，这不是错！","唱歌好听","你已经做的很好了",
-    "辛苦了！","注意保暖", "祝你开开心心", "祝你顺顺利利", "不给糖就捣蛋", 
-    "保持好心情",
+    "辛苦了！"
 ];
 
 const colors = ["#ff6f61","#ffb86c","#6aff6a","#6ac7ff","#d96aff","#ff6acc","#ffde6a"];
 
-let barrageInterval;
-let barrageEndTime;
+let bubbleInterval;
+let bubbleEndTime;
 
-function startBarrage() {
+function startBubbles() {
     const messageBox = document.getElementById("messageBox");
     messageBox.innerHTML = '<div class="line">米线大王</div><div class="line" style="margin-left: 30px;">万圣节快乐！</div>';
 
-    barrageEndTime = Date.now() + 20000;
-    barrageInterval = setInterval(createBarrage, 1000);
+    bubbleEndTime = Date.now() + 20000; // 20秒弹窗
+    bubbleInterval = setInterval(createBubble, 500); // 每0.5秒产生一条随机消息
 }
 
-function createBarrage() {
-    if (Date.now() > barrageEndTime) {
-        clearInterval(barrageInterval);
+function createBubble() {
+    if (Date.now() > bubbleEndTime) {
+        clearInterval(bubbleInterval);
         return;
     }
 
-    for (let i = 0; i < 5; i++) {
-        const message = barrageMessages[Math.floor(Math.random() * barrageMessages.length)];
-        const barrage = document.createElement("div");
-        barrage.classList.add("barrage");
-        barrage.innerText = message;
+    const message = messages[Math.floor(Math.random() * messages.length)];
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerText = message;
+    bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
-        // 随机气泡颜色
-        barrage.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    // 不覆盖顶部文字
+    const safeTop = document.getElementById("messageBox").offsetHeight + 20;
+    const randomTop = safeTop + Math.random() * (window.innerHeight - safeTop - 50);
+    const randomLeft = Math.random() * (window.innerWidth - 260); 
 
-        const safeTop = document.getElementById("messageBox").offsetHeight + 20;
-        const randomTop = safeTop + Math.random() * (window.innerHeight - safeTop - 50);
-        const randomLeft = Math.random() * (window.innerWidth - 260); 
-        const randomDelay = Math.random() * 2;
+    bubble.style.top = randomTop + "px";
+    bubble.style.left = randomLeft + "px";
 
-        barrage.style.top = randomTop + "px";
-        barrage.style.left = randomLeft + "px";
+    document.body.appendChild(bubble);
 
-        // 添加出现动画
-        barrage.style.animation = `appearScale 0.8s forwards, fadeOut 5s 15s forwards`;
-        barrage.style.animationDelay = `${randomDelay}s`;
-
-        document.getElementById("barrageContainer").appendChild(barrage);
-
-        setTimeout(() => { barrage.remove(); }, 15000 + randomDelay*1000);
-    }
+    // 停留 4 秒后淡出
+    setTimeout(() => {
+        bubble.style.animation = "fadeout 0.5s forwards";
+        setTimeout(() => bubble.remove(), 500);
+    }, 4000);
 }
 </script>
 
 </body>
 </html>
+
 
 
